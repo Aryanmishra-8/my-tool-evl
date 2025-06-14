@@ -1,0 +1,19 @@
+- name: Create Redis Cluster
+  delegate_to: "{{ groups['tag_os_ubuntu'][0] }}"
+  become: yes
+  shell: |
+    yes yes | redis-cli --cluster create \
+      {% for host in groups['tag_os_ubuntu'] %}{{ hostvars[host]['ansible_host'] }}:6379 {% endfor %} \
+      --cluster-replicas 1
+  when: inventory_hostname == groups['tag_os_ubuntu'][0]
+
+- name: Verify Redis Cluster
+  delegate_to: "{{ groups['tag_os_ubuntu'][0] }}"
+  become: yes
+  shell: redis-cli --cluster check {{ hostvars[groups['tag_os_ubuntu'][0]]['ansible_host'] }}:6379
+  register: cluster_check
+
+- name: Show Redis Cluster Check Result
+  debug:
+    var: cluster_check.stdout_lines
+

@@ -1,0 +1,73 @@
+---
+- name: Ensure redis user exists
+  user:
+    name: redis
+    system: yes
+    shell: /usr/sbin/nologin
+  become: yes
+
+- name: Ensure /etc/redis directory exists
+  file:
+    path: /etc/redis
+    state: directory
+    owner: redis
+    group: redis
+    mode: '0755'
+  become: yes
+
+- name: Install prerequisites for official Redis repo
+  apt:
+    name:
+      - lsb-release
+      - curl
+      - gnupg
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+  become: yes
+
+- name: Add Redis GPG key
+  ansible.builtin.apt_key:
+    url: https://packages.redis.io/gpg
+    keyring: /usr/share/keyrings/redis-archive-keyring.gpg
+    state: present
+  when: ansible_os_family == "Debian"
+  become: yes
+
+- name: Add Redis official APT repository
+  ansible.builtin.apt_repository:
+    filename: redis
+    repo: >-
+      deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg]
+      https://packages.redis.io/deb {{ ansible_distribution_release }} main
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+  become: yes
+
+- name: Install Redis package
+  apt:
+    name: redis-server
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+  notify: restart redis
+  become: yes
+
+- name: Install Redis on CentOS (if applicable)
+  yum:
+    name: "redis-{{ redis_version }}"
+    state: present
+  when: ansible_os_family == "RedHat"
+  notify: restart redis
+  become: yes
+
+- name: Deploy Redis configuration file
+  template:
+    src: redis.conf.j2
+    dest: /etc/redis/redis.conf
+    owner: redis
+    group: redis
+    mode: '0644'
+  notify: restart redis
+  become: yes
+...    

@@ -1,0 +1,21 @@
+
+# Redis package version
+redis_version: "7.0"
+
+# Bind and network settings
+redis_bind_address: "0.0.0.0"
+redis_port: 6379
+redis_timeout: 300
+
+# Log and data directories
+redis_logfile: "/var/log/redis/redis-server.log"
+redis_dir: "/var/lib/redis"
+
+# Cluster configuration
+redis_cluster_enabled: true
+redis_cluster_config_file: "nodes.conf"
+redis_cluster_node_timeout: 5000
+
+# Persistence
+redis_appendonly: "yes"
+

@@ -1,0 +1,20 @@
+---
+
+   
+plugin: amazon.aws.aws_ec2
+regions:
+  - ap-south-1
+
+filters:
+  instance-state-name: running
+  #instance-type: t2.micro
+
+keyed_groups:
+  - key: tags.os
+    prefix: tag_os
+
+compose:
+  ansible_host: public_ip_address
+  ansible_ssh_user: "{{ 'ubuntu' if 'ubuntu' in (tags.os | default('') | lower) else 'ec2-user' }}"
+...
+

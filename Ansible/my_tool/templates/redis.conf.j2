@@ -1,0 +1,26 @@
+bind {{ redis_bind_address }}
+port {{ redis_port }}
+timeout {{ redis_timeout }}
+protected-mode no
+daemonize no
+supervised systemd
+
+pidfile /var/run/redis_{{ redis_port }}.pid
+logfile "{{ redis_logfile }}"
+dir {{ redis_dir }}
+
+# Cluster settings
+cluster-enabled {{ redis_cluster_enabled | ternary('yes','no') }}
+cluster-config-file {{ redis_cluster_config_file }}
+cluster-node-timeout {{ redis_cluster_node_timeout }}
+
+# Add these for NAT/Docker or multi-IP setups:
+{% if redis_announce_ip is defined %}
+cluster-announce-ip {{ redis_announce_ip }}
+cluster-announce-port {{ redis_port }}
+cluster-announce-bus-port {{ redis_port + 10000 }}
+{% endif %}
+
+# Persistence
+appendonly {{ redis_appendonly }}
+
