@@ -9,10 +9,12 @@ keyed_groups:
   - key: tags.os
     prefix: tag_os
 
+hostnames:
+  - public-dns-name
+
 compose:
-  ansible_host: public_ip_address
-  ansible_ssh_user: "{{ 'ubuntu' if 'ubuntu' in (tags.os | default('') | lower) else 'ec2-user' }}"
+  ansible_host: public_dns_name
+  ansible_ssh_user: "{{ 'ubuntu' if (tags.os | default('') | lower) == 'ubuntu' else 'ec2-user' }}"
 
 ansible_ssh_common_args: >
   -o ProxyCommand="ssh -i {{ lookup('env','PEM_FILE') }} -W %h:%p -q ubuntu@{{ lookup('env','BASTION_IP') }}"
-
