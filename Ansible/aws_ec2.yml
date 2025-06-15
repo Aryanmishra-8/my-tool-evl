@@ -1,4 +1,4 @@
----
+
 
    
 plugin: amazon.aws.aws_ec2
@@ -16,5 +16,12 @@ keyed_groups:
 compose:
   ansible_host: public_ip_address
   ansible_ssh_user: "{{ 'ubuntu' if 'ubuntu' in (tags.os | default('') | lower) else 'ec2-user' }}"
-...
+
+    
+# Bastion / Jump Host SSH Config
+ansible_ssh_common_args: >
+  -o ProxyCommand="ssh -i ~/Downloads/terraform.pem -W %h:%p -q ubuntu@BASTION_IP"
+
+    
+    
 
